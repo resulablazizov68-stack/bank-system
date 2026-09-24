@@ -1,0 +1,13 @@
+C:\Users\Risul\project\bank-system\bank-system\src\main\java\kz\bank\App.java
+C:\Users\Risul\project\bank-system\bank-system\src\main\java\kz\bank\Main.java
+C:\Users\Risul\project\bank-system\bank-system\src\main\java\kz\bank\model\Account.java
+C:\Users\Risul\project\bank-system\bank-system\src\main\java\kz\bank\model\Customer.java
+C:\Users\Risul\project\bank-system\bank-system\src\main\java\kz\bank\model\DepositType.java
+C:\Users\Risul\project\bank-system\bank-system\src\main\java\kz\bank\model\Transaction.java
+C:\Users\Risul\project\bank-system\bank-system\src\main\java\kz\bank\repository\AccountRepository.java
+C:\Users\Risul\project\bank-system\bank-system\src\main\java\kz\bank\repository\CustomerRepository.java
+C:\Users\Risul\project\bank-system\bank-system\src\main\java\kz\bank\repository\TransactionRepository.java
+C:\Users\Risul\project\bank-system\bank-system\src\main\java\kz\bank\service\AccountService.java
+C:\Users\Risul\project\bank-system\bank-system\src\main\java\kz\bank\service\CustomerService.java
+C:\Users\Risul\project\bank-system\bank-system\src\main\java\kz\bank\service\TransactionService.java
+C:\Users\Risul\project\bank-system\bank-system\src\main\java\kz\bank\ui\ConsoleMenu.java

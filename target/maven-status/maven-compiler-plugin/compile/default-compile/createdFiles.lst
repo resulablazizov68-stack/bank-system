@@ -1,0 +1,13 @@
+kz\bank\App.class
+kz\bank\Main.class
+kz\bank\model\Account.class
+kz\bank\model\Customer.class
+kz\bank\service\AccountService.class
+kz\bank\model\DepositType.class
+kz\bank\model\Transaction.class
+kz\bank\repository\CustomerRepository.class
+kz\bank\service\CustomerService.class
+kz\bank\service\TransactionService.class
+kz\bank\ui\ConsoleMenu.class
+kz\bank\repository\AccountRepository.class
+kz\bank\repository\TransactionRepository.class

@@ -1,0 +1,265 @@
+package kz.bank.ui;
+
+import kz.bank.model.Customer;
+import kz.bank.model.Account;
+import kz.bank.model.Transaction;
+import kz.bank.model.DepositType;
+import kz.bank.service.CustomerService;
+import kz.bank.service.AccountService;
+import kz.bank.service.TransactionService;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Scanner;
+
+public class ConsoleMenu {
+
+    private final Scanner scanner = new Scanner(System.in);
+
+    private final CustomerService customerService;
+    private final AccountService accountService;
+    private final TransactionService transactionService;
+
+    public ConsoleMenu(
+            CustomerService customerService,
+            AccountService accountService,
+            TransactionService transactionService
+    ) {
+        this.customerService = customerService;
+        this.accountService = accountService;
+        this.transactionService = transactionService;
+    }
+
+    public void start() {
+
+        while (true) {
+
+            System.out.println();
+            System.out.println("========== БАНК ==========");
+            System.out.println("1. Создать клиента");
+            System.out.println("2. Показать клиентов");
+            System.out.println("3. Создать счёт");
+            System.out.println("4. Показать счета");
+            System.out.println("5. Пополнить счёт");
+            System.out.println("6. Снять деньги");
+            System.out.println("7. Перевести деньги");
+            System.out.println("8. Показать транзакции");
+            System.out.println("0. Выход");
+            System.out.println("==========================");
+            System.out.print("Выберите действие: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (choice) {
+
+                case 1:
+                    createCustomer();
+                    break;
+
+                case 2:
+                    showCustomers();
+                    break;
+
+                case 3:
+                    createAccount();
+                    break;
+
+                case 4:
+                    showAccounts();
+                    break;
+
+                case 5:
+                    deposit();
+                    break;
+
+                case 6:
+                    withdraw();
+                    break;
+
+                case 7:
+                    transfer();
+                    break;
+
+                case 8:
+                    showTransactions();
+                    break;
+
+                case 0:
+                    System.out.println("Программа завершена.");
+                    return;
+
+                default:
+                    System.out.println("Неверный пункт меню.");
+            }
+        }
+    }
+
+    private void createCustomer() {
+
+        System.out.print("ID клиента: ");
+        Long id = scanner.nextLong();
+        scanner.nextLine();
+
+        System.out.print("Имя: ");
+        String firstName = scanner.nextLine();
+
+        System.out.print("Фамилия: ");
+        String lastName = scanner.nextLine();
+
+        System.out.print("Email: ");
+        String email = scanner.nextLine();
+
+        customerService.createCustomer(
+                id,
+                firstName,
+                lastName,
+                email
+        );
+
+        System.out.println("Клиент создан.");
+    }
+
+    private void showCustomers() {
+
+        List<Customer> customers = customerService.getAllCustomers();
+
+        if (customers.isEmpty()) {
+            System.out.println("Клиентов пока нет.");
+            return;
+        }
+
+        for (Customer customer : customers) {
+
+            System.out.println(
+                    "ID: " + customer.getId()
+                            + " | Имя: " + customer.getFirstName()
+                            + " | Фамилия: " + customer.getLastName()
+                            + " | Email: " + customer.getEmail()
+            );
+        }
+    }
+
+    private void createAccount() {
+
+        System.out.print("ID счёта: ");
+        Long id = scanner.nextLong();
+        scanner.nextLine();
+
+        System.out.print("Номер счёта: ");
+        String accountNumber = scanner.nextLine();
+
+        System.out.println("Тип вклада:");
+        System.out.println("1. Можно снимать");
+        System.out.println("2. Нельзя снимать");
+        System.out.print("Выберите: ");
+
+        int type = scanner.nextInt();
+
+        DepositType depositType;
+
+        if (type == 1) {
+            depositType = DepositType.WITHDRAW_ALLOWED;
+        } else {
+            depositType = DepositType.NO_WITHDRAW;
+        }
+
+        System.out.print("ID клиента: ");
+        Long customerId = scanner.nextLong();
+
+        accountService.createAccount(
+                id,
+                accountNumber,
+                depositType,
+                customerId
+        );
+
+        System.out.println("Счёт создан.");
+    }
+
+    private void showAccounts() {
+
+        List<Account> accounts = accountService.getAllAccounts();
+
+        if (accounts.isEmpty()) {
+            System.out.println("Счетов пока нет.");
+            return;
+        }
+
+        for (Account account : accounts) {
+
+            System.out.println(
+                    "ID: " + account.getId()
+                            + " | Номер: " + account.getAccountNumber()
+                            + " | Баланс: " + account.getBalance()
+                            + " | Тип: " + account.getDepositType()
+                            + " | Клиент ID: " + account.getCustomerId()
+            );
+        }
+    }
+
+    private void deposit() {
+
+        System.out.print("ID счёта: ");
+        Long accountId = scanner.nextLong();
+
+        System.out.print("Сумма пополнения: ");
+        BigDecimal amount = scanner.nextBigDecimal();
+
+        accountService.deposit(accountId, amount);
+
+        System.out.println("Счёт пополнен.");
+    }
+
+    private void withdraw() {
+
+        System.out.print("ID счёта: ");
+        Long accountId = scanner.nextLong();
+
+        System.out.print("Сумма снятия: ");
+        BigDecimal amount = scanner.nextBigDecimal();
+
+        accountService.withdraw(accountId, amount);
+    }
+
+    private void transfer() {
+
+        System.out.print("ID счёта отправителя: ");
+        Long fromAccountId = scanner.nextLong();
+
+        System.out.print("ID счёта получателя: ");
+        Long toAccountId = scanner.nextLong();
+
+        System.out.print("Сумма перевода: ");
+        BigDecimal amount = scanner.nextBigDecimal();
+
+        accountService.transfer(
+                fromAccountId,
+                toAccountId,
+                amount
+        );
+
+        System.out.println("Перевод выполнен.");
+    }
+
+    private void showTransactions() {
+
+        List<Transaction> transactions =
+                transactionService.getAllTransactions();
+
+        if (transactions.isEmpty()) {
+            System.out.println("Транзакций пока нет.");
+            return;
+        }
+
+        for (Transaction transaction : transactions) {
+
+            System.out.println(
+                    "ID: " + transaction.getId()
+                            + " | Счёт: " + transaction.getAccountId()
+                            + " | Сумма: " + transaction.getAmount()
+                            + " | Время: " + transaction.getCreatedAt()
+            );
+        }
+    }
+}   
