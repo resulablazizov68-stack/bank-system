@@ -12,6 +12,7 @@ public class Main {
 
     public static void main(String[] args) {
 
+        // Репозитории
         CustomerRepository customerRepository =
                 new CustomerRepository();
 
@@ -21,15 +22,20 @@ public class Main {
         TransactionRepository transactionRepository =
                 new TransactionRepository();
 
+        // Сервисы
         CustomerService customerService =
                 new CustomerService(customerRepository);
-
-        AccountService accountService =
-                new AccountService(accountRepository);
 
         TransactionService transactionService =
                 new TransactionService(transactionRepository);
 
+        AccountService accountService =
+                new AccountService(
+                        accountRepository,
+                        transactionService
+                );
+
+        // Консольное меню
         ConsoleMenu consoleMenu =
                 new ConsoleMenu(
                         customerService,

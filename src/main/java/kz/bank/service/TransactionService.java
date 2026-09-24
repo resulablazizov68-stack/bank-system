@@ -10,20 +10,27 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepository;
 
+    // Следующий ID транзакции
+    private Long nextTransactionId = 1L;
+
     public TransactionService(TransactionRepository transactionRepository) {
         this.transactionRepository = transactionRepository;
     }
 
     public void createTransaction(
-            Long id,
-            Long accountId,
-            BigDecimal amount
+            Long accountId, 
+            BigDecimal amount,
+            String type
     ) {
+
+        // Автоматически создаём уникальный ID
+        Long id = nextTransactionId++;
 
         Transaction transaction = new Transaction(
                 id,
                 accountId,
-                amount
+                amount,
+                type
         );
 
         transactionRepository.save(transaction);
@@ -32,4 +39,4 @@ public class TransactionService {
     public List<Transaction> getAllTransactions() {
         return transactionRepository.findAll();
     }
-}  
+}

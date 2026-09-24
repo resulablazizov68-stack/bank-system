@@ -44,6 +44,8 @@ public class ConsoleMenu {
             System.out.println("6. Снять деньги");
             System.out.println("7. Перевести деньги");
             System.out.println("8. Показать транзакции");
+            System.out.println("9. Симулировать месяц");
+            System.out.println("10. Досрочно закрыть депозит");
             System.out.println("0. Выход");
             System.out.println("==========================");
             System.out.print("Выберите действие: ");
@@ -85,6 +87,14 @@ public class ConsoleMenu {
                     showTransactions();
                     break;
 
+                case 9:
+                    simulateMonth();
+                    break;
+
+                case 10:
+                    closeEarly();
+                    break;
+
                 case 0:
                     System.out.println("Программа завершена.");
                     return;
@@ -122,7 +132,8 @@ public class ConsoleMenu {
 
     private void showCustomers() {
 
-        List<Customer> customers = customerService.getAllCustomers();
+        List<Customer> customers =
+                customerService.getAllCustomers();
 
         if (customers.isEmpty()) {
             System.out.println("Клиентов пока нет.");
@@ -167,11 +178,25 @@ public class ConsoleMenu {
         System.out.print("ID клиента: ");
         Long customerId = scanner.nextLong();
 
+        System.out.print("Процентная ставка (например 17.5): ");
+        BigDecimal rate = scanner.nextBigDecimal();
+
+        System.out.println("Срок депозита:");
+        System.out.println("3 - 3 месяца");
+        System.out.println("6 - 6 месяцев");
+        System.out.println("9 - 9 месяцев");
+        System.out.println("12 - 12 месяцев");
+        System.out.print("Введите срок: ");
+
+        int termMonths = scanner.nextInt();
+
         accountService.createAccount(
                 id,
                 accountNumber,
                 depositType,
-                customerId
+                customerId,
+                rate,
+                termMonths
         );
 
         System.out.println("Счёт создан.");
@@ -179,7 +204,8 @@ public class ConsoleMenu {
 
     private void showAccounts() {
 
-        List<Account> accounts = accountService.getAllAccounts();
+        List<Account> accounts =
+                accountService.getAllAccounts();
 
         if (accounts.isEmpty()) {
             System.out.println("Счетов пока нет.");
@@ -194,6 +220,13 @@ public class ConsoleMenu {
                             + " | Баланс: " + account.getBalance()
                             + " | Тип: " + account.getDepositType()
                             + " | Клиент ID: " + account.getCustomerId()
+                            + " | Ставка: " + account.getRate() + "%"
+                            + " | Срок: " + account.getTermMonths() + " мес."
+                            + " | Открытие: " + account.getOpenDate()
+                            + " | Окончание: " + account.getEndDate()
+                            + " | Симуляция: " + account.getSimulatedDate()
+                            + " | Вознаграждение: " + account.getAccruedReward()
+                            + " | Закрыт: " + account.isClosed()
             );
         }
     }
@@ -258,8 +291,25 @@ public class ConsoleMenu {
                     "ID: " + transaction.getId()
                             + " | Счёт: " + transaction.getAccountId()
                             + " | Сумма: " + transaction.getAmount()
+                            + " | Тип: " + transaction.getType()
                             + " | Время: " + transaction.getCreatedAt()
             );
         }
     }
-}   
+
+    private void simulateMonth() {
+
+        System.out.print("ID счёта: ");
+        Long accountId = scanner.nextLong();
+
+        accountService.simulateMonth(accountId);
+    }
+
+    private void closeEarly() {
+
+        System.out.print("ID счёта: ");
+        Long accountId = scanner.nextLong();
+
+        accountService.closeEarly(accountId);
+    }
+} 

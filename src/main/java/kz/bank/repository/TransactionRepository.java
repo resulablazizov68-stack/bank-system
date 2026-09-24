@@ -1,4 +1,4 @@
-package kz.bank.repository;
+ package kz.bank.repository;
 
 import kz.bank.model.Transaction;
 
@@ -16,4 +16,4 @@ public class TransactionRepository {
     public List<Transaction> findAll() {
         return transactions;
     }
-}  
+} 
