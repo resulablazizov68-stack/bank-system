@@ -32,6 +32,9 @@ public class Account {
     // Закрыт ли депозит
     private boolean closed;
 
+    // Заблокирован ли счёт
+    private boolean blocked;
+
     public Account(
             Long id,
             String accountNumber,
@@ -62,7 +65,11 @@ public class Account {
         // Пока вознаграждение не начислено
         this.accruedReward = BigDecimal.ZERO;
 
+        // Депозит не закрыт
         this.closed = false;
+
+        // Счёт не заблокирован
+        this.blocked = false;
     }
 
     public Long getId() {
@@ -113,6 +120,10 @@ public class Account {
         return closed;
     }
 
+    public boolean isBlocked() {
+        return blocked;
+    }
+
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
@@ -128,4 +139,8 @@ public class Account {
     public void setClosed(boolean closed) {
         this.closed = closed;
     }
-}   
+
+    public void setBlocked(boolean blocked) {
+        this.blocked = blocked;
+    }
+} 

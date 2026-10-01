@@ -51,12 +51,32 @@ public class AccountService {
         return accountRepository.findById(id);
     }
 
-    public void deposit(Long accountId, BigDecimal amount) {
+    public void deposit(
+            Long accountId,
+            BigDecimal amount
+    ) {
 
-        Account account = accountRepository.findById(accountId);
+        Account account =
+                accountRepository.findById(accountId);
 
         if (account == null) {
             System.out.println("Счёт не найден.");
+            return;
+        }
+
+        // Проверяем блокировку
+        if (account.isBlocked()) {
+            System.out.println(
+                    "Счёт заблокирован. "
+                            + "Пополнение невозможно."
+            );
+            return;
+        }
+
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            System.out.println(
+                    "Сумма должна быть больше нуля."
+            );
             return;
         }
 
@@ -69,24 +89,58 @@ public class AccountService {
                 amount,
                 "DEPOSIT"
         );
+
+        System.out.println(
+                "Счёт пополнен на "
+                        + amount
+                        + " ₸."
+        );
     }
 
-    public void withdraw(Long accountId, BigDecimal amount) {
+    public void withdraw(
+            Long accountId,
+            BigDecimal amount
+    ) {
 
-        Account account = accountRepository.findById(accountId);
+        Account account =
+                accountRepository.findById(accountId);
 
         if (account == null) {
             System.out.println("Счёт не найден.");
             return;
         }
 
-        if (account.getDepositType() == DepositType.NO_WITHDRAW) {
-            System.out.println("С этого вклада нельзя снимать деньги.");
+        // Проверяем блокировку
+        if (account.isBlocked()) {
+            System.out.println(
+                    "Счёт заблокирован. "
+                            + "Снятие невозможно."
+            );
             return;
         }
 
-        if (account.getBalance().compareTo(amount) < 0) {
-            System.out.println("Недостаточно денег.");
+        if (account.getDepositType()
+                == DepositType.NO_WITHDRAW) {
+
+            System.out.println(
+                    "С этого вклада нельзя снимать деньги."
+            );
+            return;
+        }
+
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            System.out.println(
+                    "Сумма должна быть больше нуля."
+            );
+            return;
+        }
+
+        if (account.getBalance()
+                .compareTo(amount) < 0) {
+
+            System.out.println(
+                    "Недостаточно денег."
+            );
             return;
         }
 
@@ -99,6 +153,12 @@ public class AccountService {
                 amount.negate(),
                 "WITHDRAW"
         );
+
+        System.out.println(
+                "Снято: "
+                        + amount
+                        + " ₸."
+        );
     }
 
     public void transfer(
@@ -108,27 +168,68 @@ public class AccountService {
     ) {
 
         Account fromAccount =
-                accountRepository.findById(fromAccountId);
+                accountRepository.findById(
+                        fromAccountId
+                );
 
         Account toAccount =
-                accountRepository.findById(toAccountId);
+                accountRepository.findById(
+                        toAccountId
+                );
 
-        if (fromAccount == null || toAccount == null) {
-            System.out.println("Один из счетов не найден.");
+        if (fromAccount == null
+                || toAccount == null) {
+
+            System.out.println(
+                    "Один из счетов не найден."
+            );
             return;
         }
 
-        if (fromAccount.getBalance().compareTo(amount) < 0) {
-            System.out.println("Недостаточно денег для перевода.");
+        // Проверяем блокировку отправителя
+        if (fromAccount.isBlocked()) {
+
+            System.out.println(
+                    "Счёт отправителя заблокирован."
+            );
+            return;
+        }
+
+        // Проверяем блокировку получателя
+        if (toAccount.isBlocked()) {
+
+            System.out.println(
+                    "Счёт получателя заблокирован."
+            );
+            return;
+        }
+
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+
+            System.out.println(
+                    "Сумма перевода должна быть "
+                            + "больше нуля."
+            );
+            return;
+        }
+
+        if (fromAccount.getBalance()
+                .compareTo(amount) < 0) {
+
+            System.out.println(
+                    "Недостаточно денег для перевода."
+            );
             return;
         }
 
         fromAccount.setBalance(
-                fromAccount.getBalance().subtract(amount)
+                fromAccount.getBalance()
+                        .subtract(amount)
         );
 
         toAccount.setBalance(
-                toAccount.getBalance().add(amount)
+                toAccount.getBalance()
+                        .add(amount)
         );
 
         transactionService.createTransaction(
@@ -142,33 +243,56 @@ public class AccountService {
                 amount,
                 "TRANSFER_IN"
         );
+
+        System.out.println(
+                "Перевод выполнен: "
+                        + amount
+                        + " ₸."
+        );
     }
 
     public void simulateMonth(Long accountId) {
 
-        Account account = accountRepository.findById(accountId);
+        Account account =
+                accountRepository.findById(accountId);
 
         if (account == null) {
-            System.out.println("Счёт не найден.");
+            System.out.println(
+                    "Счёт не найден."
+            );
+            return;
+        }
+
+        if (account.isBlocked()) {
+            System.out.println(
+                    "Счёт заблокирован. "
+                            + "Симуляция невозможна."
+            );
             return;
         }
 
         if (account.isClosed()) {
-            System.out.println("Депозит уже закрыт.");
+            System.out.println(
+                    "Депозит уже закрыт."
+            );
             return;
         }
 
-        if (!account.getSimulatedDate().isBefore(account.getEndDate())) {
-            System.out.println("Срок депозита уже закончился.");
+        if (!account.getSimulatedDate()
+                .isBefore(account.getEndDate())) {
+
+            System.out.println(
+                    "Срок депозита уже закончился."
+            );
             return;
         }
 
-        // Переводим симуляцию на один месяц вперёд
+        // Переводим симуляцию на месяц вперёд
         LocalDate newDate =
-                account.getSimulatedDate().plusMonths(1);
+                account.getSimulatedDate()
+                        .plusMonths(1);
 
-        // Месячное вознаграждение:
-        // баланс × годовая ставка / 100 / 12
+        // Месячное вознаграждение
         BigDecimal reward =
                 account.getBalance()
                         .multiply(account.getRate())
@@ -183,20 +307,21 @@ public class AccountService {
                                 RoundingMode.HALF_UP
                         );
 
-        // Добавляем вознаграждение к балансу
+        // Добавляем вознаграждение
         account.setBalance(
                 account.getBalance().add(reward)
         );
 
-        // Сохраняем общую сумму начисленного вознаграждения
+        // Сохраняем начисленное вознаграждение
         account.setAccruedReward(
-                account.getAccruedReward().add(reward)
+                account.getAccruedReward()
+                        .add(reward)
         );
 
-        // Обновляем дату симуляции
+        // Обновляем дату
         account.setSimulatedDate(newDate);
 
-        // Создаём транзакцию вознаграждения
+        // Создаём транзакцию
         transactionService.createTransaction(
                 accountId,
                 reward,
@@ -204,49 +329,72 @@ public class AccountService {
         );
 
         System.out.println(
-                "Месяц смоделирован. Начислено: "
+                "Месяц смоделирован."
+        );
+
+        System.out.println(
+                "Начислено: "
                         + reward
+                        + " ₸."
         );
     }
 
     public void closeEarly(Long accountId) {
 
-        Account account = accountRepository.findById(accountId);
+        Account account =
+                accountRepository.findById(accountId);
 
         if (account == null) {
-            System.out.println("Счёт не найден.");
+            System.out.println(
+                    "Счёт не найден."
+            );
+            return;
+        }
+
+        if (account.isBlocked()) {
+            System.out.println(
+                    "Счёт заблокирован."
+            );
             return;
         }
 
         if (account.isClosed()) {
-            System.out.println("Депозит уже закрыт.");
+            System.out.println(
+                    "Депозит уже закрыт."
+            );
             return;
         }
 
-        if (!account.getSimulatedDate().isBefore(account.getEndDate())) {
-            System.out.println("Срок депозита уже закончился.");
+        if (!account.getSimulatedDate()
+                .isBefore(account.getEndDate())) {
+
+            System.out.println(
+                    "Срок депозита уже закончился."
+            );
             return;
         }
 
-        // Убираем всё ранее начисленное вознаграждение
+        // Убираем начисленное вознаграждение
         account.setBalance(
                 account.getBalance()
-                        .subtract(account.getAccruedReward())
+                        .subtract(
+                                account.getAccruedReward()
+                        )
         );
 
-        // Обнуляем накопленное вознаграждение
         account.setAccruedReward(
                 BigDecimal.ZERO
         );
 
-        // Закрываем депозит
         account.setClosed(true);
 
         System.out.println(
                 "Депозит закрыт досрочно."
         );
+
         System.out.println(
-                "Начисленное вознаграждение аннулировано."
+                "Начисленное вознаграждение "
+                        + "аннулировано."
         );
     }
-} 
+}   
